@@ -1,7 +1,7 @@
-package com.ecommerce.Demo.controller;
+package com.ecommerce.orderservice.controller;
 
-import com.ecommerce.Demo.entity.Order;
-import com.ecommerce.Demo.service.OrderService;
+import com.ecommerce.orderservice.entity.Order;
+import com.ecommerce.orderservice.service.OrderService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 

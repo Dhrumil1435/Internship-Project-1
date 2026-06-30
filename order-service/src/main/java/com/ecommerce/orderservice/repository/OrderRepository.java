@@ -1,6 +1,6 @@
-package com.ecommerce.Demo.repository;
+package com.ecommerce.orderservice.repository;
 
-import com.ecommerce.Demo.entity.Order;
+import com.ecommerce.orderservice.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {

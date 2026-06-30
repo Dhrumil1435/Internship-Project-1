@@ -1,7 +1,7 @@
-package com.ecommerce.Demo.service;
+package com.ecommerce.orderservice.service;
 
-import com.ecommerce.Demo.entity.Order;
-import com.ecommerce.Demo.repository.OrderRepository;
+import com.ecommerce.orderservice.entity.Order;
+import com.ecommerce.orderservice.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDateTime;
