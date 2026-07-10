@@ -1,4 +1,4 @@
-package com.ecommerce.inventoryservice.event;
+package com.ecommerce.paymentservice.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
