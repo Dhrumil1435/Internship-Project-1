@@ -6,53 +6,65 @@ import com.ecommerce.orderservice.repository.OrderRepository;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
 
-    // Clean, strongly typed template matching your original intent
-    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final OrderRepository orderRepository;
 
-    public OrderService(KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate, OrderRepository orderRepository) {
+    public OrderService(KafkaTemplate<String, Object> kafkaTemplate, OrderRepository orderRepository) {
         this.kafkaTemplate = kafkaTemplate;
         this.orderRepository = orderRepository;
     }
 
+    // 1. Create Order and Send Phase 5 Kafka Event
     public Order createOrder(Order order) {
-        // 1. Save order to PostgreSQL
+        order.setStatus("PENDING");
+        order.setCreatedAt(LocalDateTime.now());
         Order savedOrder = orderRepository.save(order);
 
-        // 2. Map data to your Phase 4 test event
         OrderCreatedEvent event = new OrderCreatedEvent();
         event.setOrderId(savedOrder.getId());
+        event.setProductName(savedOrder.getProductName());
+        event.setQuantity(savedOrder.getQuantity());
+        event.setTotalAmount(savedOrder.getTotalAmount());
 
-        // 3. Publish cleanly to the topic pipe
         kafkaTemplate.send("order-created-topic", event);
 
         return savedOrder;
     }
 
-    // --- Standard CRUD operations for OrderController ---
-
+    // 2. Get All Orders
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+    // 3. Get Order By ID
+    public Optional<Order> getOrderById(Long id) {
+        return orderRepository.findById(id);
     }
 
+    // 4. Update Order
     public Order updateOrder(Long id, Order orderDetails) {
-        Order existingOrder = getOrderById(id);
-        // Map incoming fields to existingOrder here
-        return orderRepository.save(existingOrder);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+
+        order.setProductName(orderDetails.getProductName());
+        order.setQuantity(orderDetails.getQuantity());
+        order.setTotalAmount(orderDetails.getTotalAmount());
+        order.setStatus(orderDetails.getStatus());
+
+        return orderRepository.save(order);
     }
 
+    // 5. Delete Order
     public void deleteOrder(Long id) {
-        Order existingOrder = getOrderById(id);
-        orderRepository.delete(existingOrder);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+        orderRepository.delete(order);
     }
 }

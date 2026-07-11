@@ -3,14 +3,11 @@ package com.ecommerce.inventoryservice.event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class OrderCreatedEvent {
+@NoArgsConstructor // <-- CRITICAL: Jackson requires a no-args constructor to instantiate the object!
+public class PaymentFailedEvent {
     private Long orderId;
-    private String productName;
-    private Integer quantity;
-    private BigDecimal totalAmount;
+    private String reason;
 }

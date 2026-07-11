@@ -1,4 +1,4 @@
-package com.ecommerce.inventoryservice.event;
+package com.ecommerce.paymentservice.event; // Adjust package name per service
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderCreatedEvent {
+public class InventoryReservedEvent {
     private Long orderId;
     private String productName;
     private Integer quantity;

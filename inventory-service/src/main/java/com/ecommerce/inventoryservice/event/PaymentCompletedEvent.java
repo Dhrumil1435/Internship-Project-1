@@ -3,14 +3,12 @@ package com.ecommerce.inventoryservice.event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderCreatedEvent {
+public class PaymentCompletedEvent {
     private Long orderId;
-    private String productName;
-    private Integer quantity;
-    private BigDecimal totalAmount;
+    private Long paymentId;
+    private String status;
 }
