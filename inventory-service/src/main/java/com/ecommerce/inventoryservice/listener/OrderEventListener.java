@@ -1,6 +1,6 @@
 package com.ecommerce.inventoryservice.listener;
 
-import com.ecommerce.inventoryservice.entity.InventoryItem;
+import com.ecommerce.inventoryservice.entity.Inventory;
 import com.ecommerce.inventoryservice.event.OrderCreatedEvent;
 import com.ecommerce.inventoryservice.event.InventoryReservedEvent;
 import com.ecommerce.inventoryservice.event.InventoryFailedEvent;
@@ -35,11 +35,11 @@ public class OrderEventListener {
         Integer qtyRequested = event.getQuantity() != null ? event.getQuantity() : 1;
         BigDecimal price = event.getTotalAmount() != null ? event.getTotalAmount() : BigDecimal.valueOf(999.99);
 
-        Optional<InventoryItem> inventoryOpt = inventoryRepository.findBySku(prodSku);
+        Optional<Inventory> inventoryOpt = inventoryRepository.findBySku(prodSku);
 
-        if (inventoryOpt.isPresent() && inventoryOpt.get().getQuantityAvailable() >= qtyRequested) {
-            InventoryItem item = inventoryOpt.get();
-            item.setQuantityAvailable(item.getQuantityAvailable() - qtyRequested);
+        if (inventoryOpt.isPresent() && inventoryOpt.get().getQuantity() >= qtyRequested) {
+            Inventory item = inventoryOpt.get();
+            item.setQuantity(item.getQuantity() - qtyRequested);
             inventoryRepository.save(item);
 
             log.info("Stock reserved successfully for SKU: {}", prodSku);
