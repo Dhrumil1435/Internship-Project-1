@@ -1,6 +1,7 @@
 package com.ecommerce.inventoryservice.service;
 
-import com.ecommerce.inventoryservice.entity.InventoryItem;
+import com.ecommerce.inventoryservice.entity.Inventory;
+import com.ecommerce.inventoryservice.exception.InventoryNotFoundException;
 import com.ecommerce.inventoryservice.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -14,24 +15,27 @@ public class InventoryService {
         this.inventoryRepository = inventoryRepository;
     }
 
-    public InventoryItem addItem(InventoryItem item) {
+    public Inventory addItem(Inventory item) {
         return inventoryRepository.save(item);
     }
 
-    public List<InventoryItem> getAllItems() {
+    public List<Inventory> getAllItems() {
         return inventoryRepository.findAll();
     }
 
-    public InventoryItem getItemById(Long id) {
+    public Inventory getItemById(Long id) {
         return inventoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found with id: " + id));
+                .orElseThrow(() -> new InventoryNotFoundException("Item not found with id: " + id));
     }
 
-    public InventoryItem updateItem(Long id, InventoryItem updated) {
-        InventoryItem existing = getItemById(id);
+    public Inventory updateItem(Long id, Inventory updated) {
+        Inventory existing = getItemById(id);
+        existing.setProductId(updated.getProductId());
         existing.setProductName(updated.getProductName());
-        existing.setQuantityAvailable(updated.getQuantityAvailable());
         existing.setSku(updated.getSku());
+        existing.setQuantity(updated.getQuantity());
+        existing.setReservedQuantity(updated.getReservedQuantity());
+        existing.setPrice(updated.getPrice());
         return inventoryRepository.save(existing);
     }
 
