@@ -3,6 +3,7 @@ package com.ecommerce.orderservice.listener;
 import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.event.PaymentCompletedEvent;
 import com.ecommerce.orderservice.event.PaymentFailedEvent;
+import com.ecommerce.orderservice.event.InventoryFailedEvent;
 import com.ecommerce.orderservice.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -45,7 +46,20 @@ public class PaymentEventListener {
             Order order = orderOpt.get();
             order.setStatus("FAILED"); // Mark order as failed due to billing issues
             orderRepository.save(order);
-            // In a full saga, this would also trigger a roll-back event to restore inventory stock!
+        }
+    }
+
+    @KafkaListener(topics = "inventory-failed-topic", groupId = "order-payment-group")
+    @Transactional
+    public void onInventoryFailed(InventoryFailedEvent event) {
+        log.warn("Received InventoryFailedEvent for Order ID: {} | Reason: {}", event.getOrderId(), event.getReason());
+
+        Optional<Order> orderOpt = orderRepository.findById(event.getOrderId());
+        if (orderOpt.isPresent()) {
+            Order order = orderOpt.get();
+            order.setStatus("FAILED"); // Mark order as failed due to inventory issues
+            orderRepository.save(order);
+            log.info("Order ID: {} has been marked as FAILED due to inventory issues.", event.getOrderId());
         }
     }
 }

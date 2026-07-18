@@ -27,7 +27,12 @@ public class OrderEventListener {
         if (event.getTotalAmount().doubleValue() > 5000.00) {
             log.warn("Payment declined for Order ID: {} due to credit limit violation.", event.getOrderId());
 
-            PaymentFailedEvent failedEvent = new PaymentFailedEvent(event.getOrderId(), "CREDIT_LIMIT_EXCEEDED");
+            PaymentFailedEvent failedEvent = new PaymentFailedEvent(
+                    event.getOrderId(),
+                    "CREDIT_LIMIT_EXCEEDED",
+                    event.getProductName(),
+                    event.getQuantity()
+            );
             kafkaTemplate.send("payment-failed-topic", failedEvent);
         } else {
             log.info("Payment captured successfully for Order ID: {}", event.getOrderId());

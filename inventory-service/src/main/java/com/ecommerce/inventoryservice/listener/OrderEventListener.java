@@ -4,6 +4,7 @@ import com.ecommerce.inventoryservice.entity.InventoryItem;
 import com.ecommerce.inventoryservice.event.OrderCreatedEvent;
 import com.ecommerce.inventoryservice.event.InventoryReservedEvent;
 import com.ecommerce.inventoryservice.event.InventoryFailedEvent;
+import com.ecommerce.inventoryservice.event.PaymentFailedEvent;
 import com.ecommerce.inventoryservice.repository.InventoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -62,10 +63,22 @@ public class OrderEventListener {
         }
     }
 
-    // Handled permanently: Accepting a generic Object ensures Kafka never throws a conversion error
     @KafkaListener(topics = "payment-failed-topic", groupId = "inventory-payment-group")
     @Transactional
-    public void onPaymentFailed(Object eventPayload) {
-        log.warn("Received a fallback event signal on payment-failed-topic. Skipping rollback logic execution.");
+    public void onPaymentFailed(PaymentFailedEvent event) {
+        log.warn("Received PaymentFailedEvent for Order ID: {} | Reason: {}. Reverting stock.", event.getOrderId(), event.getReason());
+        if (event.getProductName() != null && event.getQuantity() != null) {
+            Optional<InventoryItem> inventoryOpt = inventoryRepository.findBySku(event.getProductName());
+            if (inventoryOpt.isPresent()) {
+                InventoryItem item = inventoryOpt.get();
+                item.setQuantityAvailable(item.getQuantityAvailable() + event.getQuantity());
+                inventoryRepository.save(item);
+                log.info("Successfully rolled back stock. Restored {} units of SKU: {}", event.getQuantity(), event.getProductName());
+            } else {
+                log.error("Could not rollback stock. SKU not found: {}", event.getProductName());
+            }
+        } else {
+            log.error("Could not rollback stock. Event is missing product name or quantity details.");
+        }
     }
 }

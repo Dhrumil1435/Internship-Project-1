@@ -15,16 +15,26 @@ public class OrderService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final OrderRepository orderRepository;
+    private final InventoryClient inventoryClient;
 
-    public OrderService(KafkaTemplate<String, Object> kafkaTemplate, OrderRepository orderRepository) {
+    public OrderService(KafkaTemplate<String, Object> kafkaTemplate, OrderRepository orderRepository, InventoryClient inventoryClient) {
         this.kafkaTemplate = kafkaTemplate;
         this.orderRepository = orderRepository;
+        this.inventoryClient = inventoryClient;
     }
 
     // 1. Create Order and Send Phase 5 Kafka Event
     public Order createOrder(Order order) {
-        order.setStatus("PENDING");
         order.setCreatedAt(LocalDateTime.now());
+
+        // Check if inventory service is available using the circuit breaker client
+        String checkResult = inventoryClient.checkStock(order.getProductName());
+        if (checkResult != null && checkResult.startsWith("Inventory service unavailable")) {
+            order.setStatus("QUEUED");
+            return orderRepository.save(order);
+        }
+
+        order.setStatus("PENDING");
         Order savedOrder = orderRepository.save(order);
 
         OrderCreatedEvent event = new OrderCreatedEvent();
