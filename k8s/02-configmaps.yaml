@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-config
+  namespace: ecommerce
+data:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: Dhrumil2006
+  POSTGRES_DB: ecommerce_order_db
+  EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+  CONFIG_SERVER_URL: http://config-server:8888
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans

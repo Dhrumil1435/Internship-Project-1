@@ -2,12 +2,14 @@ package com.ecommerce.orderservice.controller;
 
 import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.service.OrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/orders") // <-- CRITICAL: This maps the base URL path
 public class OrderController {
@@ -21,6 +23,7 @@ public class OrderController {
     // CRITICAL: This annotation maps the POST request method to "/" (which resolves to /api/orders)
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        log.info("HTTP POST /api/orders received for customer: {}, product: {}", order.getCustomerName(), order.getProductName());
         Order createdOrder = orderService.createOrder(order);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }

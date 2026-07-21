@@ -3,6 +3,7 @@ package com.ecommerce.orderservice.service;
 import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.event.OrderCreatedEvent;
 import com.ecommerce.orderservice.repository.OrderRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -25,6 +27,7 @@ public class OrderService {
 
     // 1. Create Order and Send Phase 5 Kafka Event
     public Order createOrder(Order order) {
+        log.info("Creating order for customer: {}, product: {}", order.getCustomerName(), order.getProductName());
         order.setCreatedAt(LocalDateTime.now());
 
         // Check if inventory service is available using the circuit breaker client
