@@ -50,9 +50,9 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/9092' || exit 1"]
       interval: 10s
-      timeout: 10s
+      timeout: 5s
       retries: 5
 
   kafka-ui:
